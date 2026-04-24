@@ -163,6 +163,7 @@ struct SigningView: View {
         }
         .background(Color.black)
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .task {
             await audioManager.requestPermission()
             if audioManager.permissionGranted {
