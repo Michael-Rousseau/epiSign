@@ -4,22 +4,20 @@ import os
 
 private let log = Logger(subsystem: "com.EpiSign", category: "GGWave")
 
-public actor GGWaveActor {
-    // -1 = not initialized; 0, 1, 2, ... = valid instance IDs
+/// Thread-unsafe ggwave wrapper. All methods must be called from a single serial queue.
+public final class GGWaveDecoder: @unchecked Sendable {
     private var instance: ggwave_Instance = -1
-    private let sampleRate: Int
-    private var decodeCount: Int = 0
 
-    public init(sampleRate: Int = 48000) {
-        self.sampleRate = sampleRate
+    public init(sampleRate: Int = 48000, markerThreshold: Float = 3.0) {
         var params = ggwave_getDefaultParameters()
         params.sampleRateInp = Float(sampleRate)
         params.sampleRateOut = Float(sampleRate)
         params.sampleFormatInp = GGWAVE_SAMPLE_FORMAT_F32
         params.sampleFormatOut = GGWAVE_SAMPLE_FORMAT_F32
         params.operatingMode = Int32(GGWAVE_OPERATING_MODE_RX_AND_TX)
+        params.soundMarkerThreshold = markerThreshold
         instance = ggwave_init(params)
-        log.info("init instance=\(self.instance) sampleRate=\(sampleRate)")
+        log.info("init instance=\(self.instance) sr=\(sampleRate) threshold=\(markerThreshold)")
     }
 
     deinit {
@@ -28,47 +26,33 @@ public actor GGWaveActor {
         }
     }
 
-    /// Decode audio samples (Float32). Returns the detected payload string, or nil.
-    public func decode(samples: [Float]) -> String? {
-        guard instance >= 0, !samples.isEmpty else {
-            if decodeCount == 0 {
-                log.error("decode skipped — instance=\(self.instance)")
-            }
-            return nil
-        }
+    public func decode(samples: UnsafeBufferPointer<Float>) -> String? {
+        guard instance >= 0, samples.count > 0 else { return nil }
 
         var output = [UInt8](repeating: 0, count: 256)
         let waveformSize = Int32(samples.count * MemoryLayout<Float>.size)
 
-        let result: Int32 = samples.withUnsafeBufferPointer { buf in
-            output.withUnsafeMutableBufferPointer { outBuf in
-                ggwave_ndecode(
-                    instance,
-                    buf.baseAddress!,
-                    waveformSize,
-                    outBuf.baseAddress!,
-                    256
-                )
-            }
-        }
-
-        decodeCount += 1
-
-        // Log non-zero results always, periodic status every 100 calls
-        if result != 0 {
-            log.info("decode #\(self.decodeCount) returned \(result)")
-        } else if decodeCount % 100 == 0 {
-            log.info("decode #\(self.decodeCount) still listening (0)")
+        let result: Int32 = output.withUnsafeMutableBufferPointer { outBuf in
+            ggwave_ndecode(
+                instance,
+                samples.baseAddress!,
+                waveformSize,
+                outBuf.baseAddress!,
+                256
+            )
         }
 
         if result > 0 {
             let data = Data(output.prefix(Int(result)))
-            return String(data: data, encoding: .utf8)
+            let text = String(data: data, encoding: .utf8)
+            log.info("DECODED \(result) bytes: '\(text ?? "<nil>")'")
+            return text
+        } else if result < 0 {
+            log.error("decode error: \(result)")
         }
         return nil
     }
 
-    /// Encode a string payload into audio samples for transmission.
     public func encode(payload: String, protocolId: Int32 = 3, volume: Int32 = 25) -> [Float]? {
         guard instance >= 0 else { return nil }
 
@@ -104,6 +88,7 @@ public actor GGWaveActor {
         guard written > 0 else { return nil }
 
         let floatCount = Int(written) / MemoryLayout<Float>.size
+        log.info("encoded '\(payload)' → \(floatCount) samples")
         return output.withUnsafeBufferPointer { buf in
             buf.baseAddress!.withMemoryRebound(to: Float.self, capacity: floatCount) { ptr in
                 Array(UnsafeBufferPointer(start: ptr, count: floatCount))

@@ -14,8 +14,6 @@ final class AudioManager {
     var permissionGranted = false
     var debugStatus: String = ""
 
-    /// When true, listens for audible-range signals (~1-4 kHz) instead of ultrasound (17-21 kHz).
-    /// Toggle this for local MacBook testing where speakers can't emit ultrasound.
     var devMode: Bool = false {
         didSet {
             if isListening {
@@ -26,18 +24,18 @@ final class AudioManager {
     }
 
     private var engine: AVAudioEngine?
+    private var playerNode: AVAudioPlayerNode?
     private let fftSize = 2048
     private var fftSetup: vDSP_DFT_Setup?
 
-    // ggwave decoder actor — created on start() with the hardware sample rate
-    private var ggwave: GGWaveActor?
-    private var decodeCallCount = 0
-    // Serial queue ensures audio samples are fed to ggwave in chronological order
     private let decodeQueue = DispatchQueue(label: "com.EpiSign.ggwave-decode")
+    private var decoder: GGWaveDecoder?
+    private var decodeCallCount = 0
+    private let ggwaveSamplesPerFrame = 1024
+    private var pendingSamples: [Float] = []  // accumulate until we have 1024
 
     init() {
         fftSetup = vDSP_DFT_zop_CreateSetup(nil, vDSP_Length(fftSize), .FORWARD)
-        log.info("init")
     }
 
     deinit {
@@ -57,14 +55,10 @@ final class AudioManager {
                 }
             }
         }
-        log.info("permission: \(self.permissionGranted)")
     }
 
     func start() {
-        guard permissionGranted, !isListening else {
-            log.warning("start blocked — permission: \(self.permissionGranted), listening: \(self.isListening)")
-            return
-        }
+        guard permissionGranted, !isListening else { return }
 
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetooth])
@@ -77,57 +71,76 @@ final class AudioManager {
         let hwFormat = inputNode.outputFormat(forBus: 0)
         let sampleRate = hwFormat.sampleRate
 
-        log.info("sampleRate: \(sampleRate), channels: \(hwFormat.channelCount), devMode: \(self.devMode)")
+        log.info("start: sr=\(sampleRate) ch=\(hwFormat.channelCount) devMode=\(self.devMode)")
 
-        // Create ggwave instance at the hardware sample rate
-        ggwave = GGWaveActor(sampleRate: Int(sampleRate))
+        decodeQueue.sync {
+            decoder = GGWaveDecoder(sampleRate: Int(sampleRate))
+        }
         decodeCallCount = 0
-        log.info("ggwave actor created at \(Int(sampleRate)) Hz")
 
-        // Install a single tap — fan out to FFT visualizer and ggwave decoder
+        let player = AVAudioPlayerNode()
+        engine.attach(player)
+        let outputFormat = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1)!
+        engine.connect(player, to: engine.mainMixerNode, format: outputFormat)
+        playerNode = player
+
         inputNode.installTap(onBus: 0, bufferSize: AVAudioFrameCount(fftSize), format: hwFormat) { [weak self] buffer, _ in
             guard let self, let channelData = buffer.floatChannelData?[0] else { return }
             let frameCount = Int(buffer.frameLength)
-
-            // 1. FFT for spectrum visualization
             self.computeSpectrum(data: channelData, count: frameCount, sampleRate: Float(sampleRate))
-
-            // 2. Feed samples to ggwave for decoding
             self.feedGGWave(data: channelData, count: frameCount)
         }
 
         do {
             try engine.start()
             isListening = true
-            log.info("engine started OK")
+            log.info("engine started")
             Task { @MainActor in
                 self.debugStatus = "Listening (\(Int(sampleRate)) Hz)"
             }
         } catch {
-            log.error("engine start FAILED: \(error)")
+            log.error("engine failed: \(error)")
         }
     }
 
     func stop() {
+        playerNode?.stop()
+        playerNode = nil
         engine?.inputNode.removeTap(onBus: 0)
         engine?.stop()
         engine = nil
         isListening = false
-        ggwave = nil
-        log.info("stopped")
+        decodeQueue.sync {
+            decoder = nil
+            pendingSamples = []
+        }
     }
 
-    // MARK: - Spectrum frequency band based on mode
+    func playTOTP(_ code: String, protocolId: Int32 = 0, volume: Int32 = 100) {
+        guard let engine, let playerNode else { return }
 
-    var spectrumLowFreq: Float {
-        devMode ? 1000.0 : 17000.0
+        decodeQueue.async { [weak self] in
+            guard let self, let decoder = self.decoder else { return }
+            guard let samples = decoder.encode(payload: code, protocolId: protocolId, volume: volume) else { return }
+
+            let sampleRate = engine.inputNode.outputFormat(forBus: 0).sampleRate
+            let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1)!
+            let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(samples.count))!
+            buffer.frameLength = AVAudioFrameCount(samples.count)
+            let channelData = buffer.floatChannelData![0]
+            for i in 0..<samples.count { channelData[i] = samples[i] }
+
+            DispatchQueue.main.async {
+                playerNode.scheduleBuffer(buffer, at: nil)
+                playerNode.play()
+            }
+        }
     }
 
-    var spectrumHighFreq: Float {
-        devMode ? 6000.0 : 21000.0
-    }
+    // MARK: - Spectrum
 
-    // MARK: - FFT Spectrum
+    var spectrumLowFreq: Float { devMode ? 1000.0 : 17000.0 }
+    var spectrumHighFreq: Float { devMode ? 6000.0 : 21000.0 }
 
     private func computeSpectrum(data: UnsafeMutablePointer<Float>, count: Int, sampleRate: Float) {
         guard let fftSetup, count >= fftSize else { return }
@@ -137,14 +150,11 @@ final class AudioManager {
         var realOutput = [Float](repeating: 0, count: fftSize)
         var imagOutput = [Float](repeating: 0, count: fftSize)
 
-        for i in 0..<min(count, fftSize) {
-            realInput[i] = data[i]
-        }
+        for i in 0..<min(count, fftSize) { realInput[i] = data[i] }
 
         var window = [Float](repeating: 0, count: fftSize)
         vDSP_hann_window(&window, vDSP_Length(fftSize), Int32(vDSP_HANN_NORM))
         vDSP_vmul(realInput, 1, window, 1, &realInput, 1, vDSP_Length(fftSize))
-
         vDSP_DFT_Execute(fftSetup, realInput, imagInput, &realOutput, &imagOutput)
 
         var magnitudes = [Float](repeating: 0, count: fftSize / 2)
@@ -160,7 +170,6 @@ final class AudioManager {
         let highBin = min(Int(spectrumHighFreq / binResolution), fftSize / 2 - 1)
         let bandWidth = highBin - lowBin
         let barsCount = 64
-
         var bars = [Float](repeating: 0, count: barsCount)
         let binsPerBar = max(1, bandWidth / barsCount)
 
@@ -168,62 +177,51 @@ final class AudioManager {
             let startBin = lowBin + i * binsPerBar
             let endBin = min(startBin + binsPerBar, fftSize / 2)
             guard startBin < endBin else { continue }
-
             var sum: Float = 0
-            for b in startBin..<endBin {
-                sum += magnitudes[b]
-            }
+            for b in startBin..<endBin { sum += magnitudes[b] }
             let avg = sum / Float(endBin - startBin)
             bars[i] = max(0, min(1, (10 * log10(avg + 1e-10) + 60) / 60))
         }
 
-        Task { @MainActor in
-            self.spectrumData = bars
-        }
+        Task { @MainActor in self.spectrumData = bars }
     }
 
     // MARK: - ggwave Decode
 
     private func feedGGWave(data: UnsafeMutablePointer<Float>, count: Int) {
-        guard let ggwave else {
-            log.error("feedGGWave: no ggwave instance!")
-            return
-        }
-
-        let samples = Array(UnsafeBufferPointer(start: data, count: count))
+        let newSamples = Array(UnsafeBufferPointer(start: data, count: count))
         decodeCallCount += 1
+        let n = decodeCallCount
 
-        let callNum = decodeCallCount
-        let shouldLog = (callNum % 50 == 0)
-
-        if shouldLog {
-            let maxSample = samples.max() ?? 0
-            log.info("decode call #\(callNum) | samples: \(count) | peak: \(maxSample)")
+        if n % 20 == 0 {
+            let peak = newSamples.max() ?? 0
+            log.info("mic #\(n) | \(count) samples | peak=\(peak)")
         }
 
-        // Use serial queue to guarantee samples are fed in chronological order.
-        // Creating separate Tasks per buffer causes out-of-order delivery to the actor.
+        // ggwave needs exactly samplesPerFrame (1024) samples per decode call.
+        // The audio tap delivers variable-size buffers (e.g. 4800), so we chunk them.
         decodeQueue.async { [weak self] in
-            guard let self else { return }
-            let semaphore = DispatchSemaphore(value: 0)
-            var payload: String? = nil
-            Task {
-                payload = await ggwave.decode(samples: samples)
-                semaphore.signal()
-            }
-            semaphore.wait()
+            guard let self, let decoder = self.decoder else { return }
 
-            if let payload {
-                log.info("ggwave decoded payload: \(payload)")
-                let trimmed = payload.trimmingCharacters(in: .whitespacesAndNewlines)
-                if trimmed.count == 6, trimmed.allSatisfy(\.isNumber) {
-                    log.info("TOTP DETECTED: \(trimmed)")
-                    DispatchQueue.main.async {
-                        self.detectedTOTP = trimmed
-                        self.debugStatus = "Decoded: \(trimmed)"
+            self.pendingSamples.append(contentsOf: newSamples)
+
+            while self.pendingSamples.count >= self.ggwaveSamplesPerFrame {
+                let chunk = Array(self.pendingSamples.prefix(self.ggwaveSamplesPerFrame))
+                self.pendingSamples.removeFirst(self.ggwaveSamplesPerFrame)
+
+                let payload: String? = chunk.withUnsafeBufferPointer { buf in
+                    decoder.decode(samples: buf)
+                }
+
+                if let payload {
+                    let trimmed = payload.trimmingCharacters(in: .whitespacesAndNewlines)
+                    log.info("TOTP received: '\(trimmed)'")
+                    if trimmed.count == 6, trimmed.allSatisfy({ $0.isASCII && $0.isNumber }) {
+                        DispatchQueue.main.async {
+                            self.detectedTOTP = trimmed
+                            self.debugStatus = "Decoded: \(trimmed)"
+                        }
                     }
-                } else {
-                    log.warning("decoded but not 6-digit TOTP: \(trimmed)")
                 }
             }
         }

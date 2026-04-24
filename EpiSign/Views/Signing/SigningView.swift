@@ -12,24 +12,6 @@ struct SigningView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Dev mode toggle (top-right)
-            HStack {
-                Spacer()
-                Toggle(isOn: Binding(
-                    get: { audioManager.devMode },
-                    set: { audioManager.devMode = $0 }
-                )) {
-                    Text("Dev")
-                        .font(.caption2)
-                        .foregroundStyle(.white.opacity(0.5))
-                }
-                .toggleStyle(.switch)
-                .tint(.yellow)
-                .fixedSize()
-                .padding(.trailing)
-                .padding(.top, 8)
-            }
-
             // Course info header
             VStack(alignment: .leading, spacing: 6) {
                 Text(course.title)
@@ -202,6 +184,6 @@ struct SigningView: View {
     }
 
     private var canSign: Bool {
-        totpCode.count == 6 && totpCode.allSatisfy(\.isNumber)
+        totpCode.count == 6 && totpCode.allSatisfy { $0.isASCII && $0.isNumber }
     }
 }
