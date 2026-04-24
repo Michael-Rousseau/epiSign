@@ -1,4 +1,4 @@
 module CGGWave {
-    header "ggwave.h"
+    header "CGGWave.h"
     export *
 }

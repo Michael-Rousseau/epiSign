@@ -1,0 +1,64 @@
+client:
+  name: basic
+  file-system: device-agnostic
+tools: {}
+targets:
+  "CGGWave-arm64-apple-macosx26.0-debug.module": ["<CGGWave-arm64-apple-macosx26.0-debug.module>"]
+  "GGWave-arm64-apple-macosx26.0-debug.module": ["<GGWave-arm64-apple-macosx26.0-debug.module>"]
+  "PackageStructure": ["<PackageStructure>"]
+  "main": ["<CGGWave-arm64-apple-macosx26.0-debug.module>","<GGWave-arm64-apple-macosx26.0-debug.module>"]
+  "test": ["<CGGWave-arm64-apple-macosx26.0-debug.module>","<GGWave-arm64-apple-macosx26.0-debug.module>"]
+default: "main"
+nodes:
+  "/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/CGGWave/":
+    is-directory-structure: true
+    content-exclusion-patterns: [".git",".build"]
+  "/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/GGWave/":
+    is-directory-structure: true
+    content-exclusion-patterns: [".git",".build"]
+commands:
+  "/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/CGGWave.build/ggwave.cpp.o":
+    tool: clang
+    inputs: ["/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/CGGWave/ggwave.cpp"]
+    outputs: ["/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/CGGWave.build/ggwave.cpp.o"]
+    description: "Compiling CGGWave ggwave.cpp"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang","-fobjc-arc","-target","arm64-apple-macosx14.0","-O0","-DSWIFT_PACKAGE=1","-DDEBUG=1","-fblocks","-index-store-path","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/index/store","-I","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/CGGWave/include","-DGGWAVE_SHARED=0","-I/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/CGGWave/include","-I/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/CGGWave","-isysroot","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-fPIC","-g","-g","-MD","-MT","dependencies","-MF","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/CGGWave.build/ggwave.cpp.d","-std=c++17","-c","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/CGGWave/ggwave.cpp","-o","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/CGGWave.build/ggwave.cpp.o"]
+    deps: "/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/CGGWave.build/ggwave.cpp.d"
+
+  "/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/sources":
+    tool: write-auxiliary-file
+    inputs: ["<sources-file-list>","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/GGWave/GGWaveActor.swift"]
+    outputs: ["/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/sources"]
+    description: "Write auxiliary file /Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/sources"
+
+  "/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt":
+    tool: write-auxiliary-file
+    inputs: ["<swift-get-version>","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"]
+    outputs: ["/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"]
+    always-out-of-date: "true"
+    description: "Write auxiliary file /Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+
+  "<CGGWave-arm64-apple-macosx26.0-debug.module>":
+    tool: phony
+    inputs: ["/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/CGGWave.build/ggwave.cpp.o"]
+    outputs: ["<CGGWave-arm64-apple-macosx26.0-debug.module>"]
+
+  "<GGWave-arm64-apple-macosx26.0-debug.module>":
+    tool: phony
+    inputs: ["/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/GGWaveActor.swift.o","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/Modules/GGWave.swiftmodule"]
+    outputs: ["<GGWave-arm64-apple-macosx26.0-debug.module>"]
+
+  "C.GGWave-arm64-apple-macosx26.0-debug.module":
+    tool: shell
+    inputs: ["/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/GGWave/GGWaveActor.swift","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/CGGWave.build/ggwave.cpp.o","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/sources"]
+    outputs: ["/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/GGWaveActor.swift.o","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/Modules/GGWave.swiftmodule"]
+    description: "Compiling Swift Module 'GGWave' (1 sources)"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-module-name","GGWave","-emit-dependencies","-emit-module","-emit-module-path","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/Modules/GGWave.swiftmodule","-output-file-map","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/output-file-map.json","-parse-as-library","-incremental","-c","@/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/sources","-I","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/Modules","-target","arm64-apple-macosx14.0","-incremental","-enable-batch-mode","-serialize-diagnostics","-index-store-path","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/index/store","-Onone","-enable-testing","-j11","-DSWIFT_PACKAGE","-DDEBUG","-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE","-Xcc","-fmodule-map-file=/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/CGGWave/include/module.modulemap","-Xcc","-I","-Xcc","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/CGGWave/include","-module-cache-path","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/ModuleCache","-parseable-output","-parse-as-library","-emit-objc-header","-emit-objc-header-path","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/include/GGWave-Swift.h","-swift-version","5","-plugin-path","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g","-Xcc","-isysroot","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks","-Xcc","-fPIC","-Xcc","-g","-package-name","ggwave"]
+
+  "PackageStructure":
+    tool: package-structure-tool
+    inputs: ["/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/CGGWave/","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/GGWave/","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Package.swift","/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Package.resolved"]
+    outputs: ["<PackageStructure>"]
+    description: "Planning build"
+    allow-missing-inputs: true
+

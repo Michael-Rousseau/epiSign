@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/master.swiftdeps"
+  },
+  "/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/Sources/GGWave/GGWaveActor.swift": {
+    "dependencies": "/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/GGWaveActor.d",
+    "object": "/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/GGWaveActor.swift.o",
+    "swiftmodule": "/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/GGWaveActor~partial.swiftmodule",
+    "swift-dependencies": "/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/GGWaveActor.swiftdeps",
+    "diagnostics": "/Users/michael.rousseau/Documents/EPITA/ing2/epiSign/Packages/GGWave/.build/arm64-apple-macosx/debug/GGWave.build/GGWaveActor.dia"
+  }
+}

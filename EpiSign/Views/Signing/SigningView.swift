@@ -12,6 +12,24 @@ struct SigningView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // Dev mode toggle (top-right)
+            HStack {
+                Spacer()
+                Toggle(isOn: Binding(
+                    get: { audioManager.devMode },
+                    set: { audioManager.devMode = $0 }
+                )) {
+                    Text("Dev")
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.5))
+                }
+                .toggleStyle(.switch)
+                .tint(.yellow)
+                .fixedSize()
+                .padding(.trailing)
+                .padding(.top, 8)
+            }
+
             // Course info header
             VStack(alignment: .leading, spacing: 6) {
                 Text(course.title)
@@ -84,9 +102,15 @@ struct SigningView: View {
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
-                    Text("Approach your instructor")
+                    Text(audioManager.devMode ? "Listening 1-4 kHz (dev)" : "Approach your instructor")
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.5))
+                    if !audioManager.debugStatus.isEmpty {
+                        Text(audioManager.debugStatus)
+                            .font(.caption2)
+                            .foregroundStyle(.yellow.opacity(0.7))
+                            .padding(.top, 4)
+                    }
                 } else {
                     Text("Microphone requis")
                         .font(.title3)

@@ -8,30 +8,26 @@ let package = Package(
         .library(name: "GGWave", targets: ["GGWave"]),
     ],
     targets: [
-        // C/C++ target wrapping ggwave sources
-        // After cloning: cp /tmp/ggwave/include/ggwave/ggwave.h Sources/CGGWave/include/
-        //                cp /tmp/ggwave/src/ggwave.cpp Sources/CGGWave/
-        //                cp /tmp/ggwave/src/ggwave-common.cpp Sources/CGGWave/
+        // C/C++ target wrapping real ggwave sources from
+        // https://github.com/ggerganov/ggwave
         .target(
             name: "CGGWave",
             path: "Sources/CGGWave",
             publicHeadersPath: "include",
             cxxSettings: [
                 .headerSearchPath("include"),
+                .headerSearchPath("."),
                 .define("GGWAVE_SHARED", to: "0"),
             ],
             linkerSettings: [
                 .linkedFramework("Accelerate"),
             ]
         ),
-        // Swift wrapper
+        // Swift wrapper — uses only the C API from CGGWave.h
         .target(
             name: "GGWave",
             dependencies: ["CGGWave"],
-            path: "Sources/GGWave",
-            swiftSettings: [
-                .interoperabilityMode(.Cxx),
-            ]
+            path: "Sources/GGWave"
         ),
     ],
     cxxLanguageStandard: .cxx17

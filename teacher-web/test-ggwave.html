@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ggwave test</title>
+    <style>
+        body { font-family: monospace; background: #111; color: #0f0; padding: 20px; }
+        button { font-size: 1.2rem; padding: 10px 20px; margin: 5px; cursor: pointer; }
+        #log { white-space: pre-wrap; margin-top: 20px; padding: 10px; background: #000; border: 1px solid #333; max-height: 400px; overflow-y: auto; }
+        .error { color: #f44; }
+        .ok { color: #4f4; }
+        .info { color: #ff0; }
+    </style>
+</head>
+<body>
+    <h2>ggwave diagnostic test</h2>
+    <button onclick="runTest()">1. Load ggwave + Send audible tone</button>
+    <button onclick="startCapture()">2. Start mic capture (decode)</button>
+    <button onclick="stopCapture()">Stop capture</button>
+    <div id="log"></div>
+
+    <script>
+        const logEl = document.getElementById('log');
+        function log(msg, cls) {
+            const d = document.createElement('div');
+            d.className = cls || '';
+            d.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logEl.appendChild(d);
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(msg);
+        }
+
+        // Reinterpret bytes as different TypedArray (from official ggwave example)
+        function convertTypedArray(src, type) {
+            var buffer = new ArrayBuffer(src.byteLength);
+            new src.constructor(buffer).set(src);
+            return new type(buffer);
+        }
+
+        let ggwave = null;
+        let instance = null;
+        let context = null;
+        let recorder = null;
+        let mediaStream = null;
+
+        async function runTest() {
+            log('--- STARTING TEST ---', 'info');
+
+            // Step 1: Load ggwave WASM
+            log('Loading ggwave from CDN...');
+            const urls = [
+                'https://ggwave-js.ggerganov.com/ggwave.js',
+                'https://cdn.jsdelivr.net/npm/ggwave@0.4.2/build/ggwave.js',
+            ];
+
+            let loaded = false;
+            for (const url of urls) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        const s = document.createElement('script');
+                        s.src = url;
+                        s.onload = resolve;
+                        s.onerror = reject;
+                        document.head.appendChild(s);
+                    });
+                    if (typeof ggwave_factory === 'function') {
+                        log('ggwave script loaded from: ' + url, 'ok');
+                        loaded = true;
+                        break;
+                    }
+                } catch (e) {
+                    log('Failed to load from: ' + url, 'error');
+                }
+            }
+            if (!loaded) { log('FATAL: could not load ggwave', 'error'); return; }
+
+            // Step 2: Init WASM module
+            try {
+                ggwave = await ggwave_factory();
+                log('ggwave_factory() resolved. Module keys: ' + Object.keys(ggwave).join(', '), 'ok');
+            } catch (e) {
+                log('ggwave_factory() FAILED: ' + e.message, 'error');
+                return;
+            }
+
+            // Check ProtocolId constants
+            if (ggwave.ProtocolId) {
+                log('ProtocolId constants: ' + JSON.stringify(ggwave.ProtocolId), 'ok');
+            } else {
+                log('WARNING: ggwave.ProtocolId is undefined — will use raw integers', 'info');
+            }
+
+            // Step 3: Create AudioContext
+            context = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 48000 });
+            log('AudioContext created. sampleRate=' + context.sampleRate + ' state=' + context.state);
+
+            if (context.state === 'suspended') {
+                await context.resume();
+                log('AudioContext resumed. state=' + context.state);
+            }
+
+            // Step 4: Init ggwave instance
+            var parameters = ggwave.getDefaultParameters();
+            log('Default params: ' + JSON.stringify(parameters));
+            parameters.sampleRateInp = context.sampleRate;
+            parameters.sampleRateOut = context.sampleRate;
+            instance = ggwave.init(parameters);
+            log('ggwave instance created: ' + instance, instance ? 'ok' : 'error');
+
+            // Step 5: Encode a test message using AUDIBLE protocol
+            var protocolId = ggwave.ProtocolId
+                ? ggwave.ProtocolId.GGWAVE_PROTOCOL_AUDIBLE_NORMAL
+                : 0;
+            log('Using protocolId=' + protocolId + ' (AUDIBLE_NORMAL), volume=50');
+
+            var waveform = ggwave.encode(instance, "123456", protocolId, 50);
+            if (!waveform) {
+                log('encode() returned null/undefined!', 'error');
+                return;
+            }
+
+            log('encode() returned: type=' + waveform.constructor.name +
+                ' byteLength=' + waveform.byteLength +
+                ' length=' + waveform.length, 'ok');
+
+            // Step 6: Convert to Float32 and play
+            var buf = convertTypedArray(waveform, Float32Array);
+            log('Converted to Float32Array: length=' + buf.length +
+                ' duration=' + (buf.length / context.sampleRate).toFixed(2) + 's' +
+                ' first 5 values: [' + Array.from(buf.slice(0, 5)).map(v => v.toFixed(4)).join(', ') + ']');
+
+            if (buf.every(v => v === 0)) {
+                log('WARNING: all samples are zero — audio will be silent!', 'error');
+            }
+
+            var buffer = context.createBuffer(1, buf.length, context.sampleRate);
+            buffer.getChannelData(0).set(buf);
+            var source = context.createBufferSource();
+            source.buffer = buffer;
+            source.connect(context.destination);
+            source.start(0);
+            log('Playing waveform now — you should hear a chirp/buzz!', 'info');
+        }
+
+        function startCapture() {
+            if (!ggwave || !instance || !context) {
+                log('Run test first (button 1)!', 'error');
+                return;
+            }
+
+            log('Requesting microphone...', 'info');
+            navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: false,
+                    autoGainControl: false,
+                    noiseSuppression: false
+                }
+            }).then(function(stream) {
+                mediaStream = context.createMediaStreamSource(stream);
+
+                if (context.createScriptProcessor) {
+                    recorder = context.createScriptProcessor(1024, 1, 1);
+                } else {
+                    recorder = context.createJavaScriptNode(1024, 1, 1);
+                }
+
+                recorder.onaudioprocess = function(e) {
+                    var source = e.inputBuffer;
+                    var res = ggwave.decode(
+                        instance,
+                        convertTypedArray(new Float32Array(source.getChannelData(0)), Int8Array)
+                    );
+
+                    if (res && res.length > 0) {
+                        var text = new TextDecoder("utf-8").decode(res);
+                        log('DECODED: "' + text + '"', 'ok');
+                    }
+                };
+
+                mediaStream.connect(recorder);
+                recorder.connect(context.destination);
+                log('Microphone capturing — listening for ggwave signals...', 'ok');
+            }).catch(function(e) {
+                log('Mic error: ' + e.message, 'error');
+            });
+        }
+
+        function stopCapture() {
+            if (recorder) {
+                recorder.disconnect(context.destination);
+                mediaStream.disconnect(recorder);
+                recorder = null;
+                log('Capture stopped.', 'info');
+            }
+        }
+    </script>
+</body>
+</html>
