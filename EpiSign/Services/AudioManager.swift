@@ -84,44 +84,6 @@ final class AudioManager {
         decodeCallCount = 0
         log.info("ggwave actor created at \(Int(sampleRate)) Hz")
 
-        // Acoustic self-test: encode with C library, play through speaker,
-        // mic captures it, ggwave decodes. Tests the full acoustic path.
-        let capturedSampleRate = sampleRate
-        Task {
-            guard let ggwave else { return }
-            log.info("acoustic-test: encoding '999999' with AUDIBLE_NORMAL (proto 0)")
-            if let samples = await ggwave.encode(payload: "999999", protocolId: 0, volume: 100) {
-                log.info("acoustic-test: playing \(samples.count) samples through speaker...")
-
-                // Play the encoded audio through the device speaker
-                let audioFormat = AVAudioFormat(standardFormatWithSampleRate: capturedSampleRate, channels: 1)!
-                let buffer = AVAudioPCMBuffer(pcmFormat: audioFormat, frameCapacity: AVAudioFrameCount(samples.count))!
-                buffer.frameLength = AVAudioFrameCount(samples.count)
-                let channelData = buffer.floatChannelData![0]
-                for i in 0..<samples.count {
-                    channelData[i] = samples[i]
-                }
-
-                let playerNode = AVAudioPlayerNode()
-                let playerEngine = AVAudioEngine()
-                playerEngine.attach(playerNode)
-                playerEngine.connect(playerNode, to: playerEngine.mainMixerNode, format: audioFormat)
-                try? playerEngine.start()
-                await playerNode.scheduleBuffer(buffer, at: nil)
-                playerNode.play()
-
-                log.info("acoustic-test: audio playing — mic should pick it up and ggwave should decode")
-
-                // Wait for playback to finish
-                try? await Task.sleep(for: .seconds(3))
-                playerNode.stop()
-                playerEngine.stop()
-                log.info("acoustic-test: playback done")
-            } else {
-                log.error("acoustic-test: encode returned nil")
-            }
-        }
-
         // Install a single tap — fan out to FFT visualizer and ggwave decoder
         inputNode.installTap(onBus: 0, bufferSize: AVAudioFrameCount(fftSize), format: hwFormat) { [weak self] buffer, _ in
             guard let self, let channelData = buffer.floatChannelData?[0] else { return }

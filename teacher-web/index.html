@@ -188,12 +188,11 @@
         let lastCode = '';
         let isDevMode = false;
 
-        // Load ggwave WASM dynamically from the official repo build
+        // Load ggwave WASM from official CDN
         async function loadGGWave() {
-            // Try loading from ggerganov's GitHub Pages (the official source)
             const urls = [
                 'https://ggwave-js.ggerganov.com/ggwave.js',
-                'https://cdn.jsdelivr.net/npm/ggwave@0.4.2/build/ggwave.js',
+                'https://cdn.jsdelivr.net/npm/ggwave@0.4.0/build/ggwave.js',
             ];
 
             for (const url of urls) {

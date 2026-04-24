@@ -29,11 +29,18 @@
 		B4E512A92F97B5BB00D76599 /* EpiSignUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EpiSignUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		E10000000000000000000001 /* XCLocalSwiftPackageReference "supabase-swift" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/supabase-swift;
+/* Begin XCRemoteSwiftPackageReference section */
+		E10000000000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
 		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCLocalSwiftPackageReference section */
 		E10000000000000000000010 /* XCLocalSwiftPackageReference "GGWave" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/GGWave;
@@ -43,7 +50,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		E10000000000000000000002 /* Supabase */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = E10000000000000000000001 /* XCLocalSwiftPackageReference "supabase-swift" */;
+			package = E10000000000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;
 		};
 		E10000000000000000000011 /* GGWave */ = {
@@ -223,7 +230,7 @@
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
 			packageReferences = (
-				E10000000000000000000001 /* XCLocalSwiftPackageReference "supabase-swift" */,
+				E10000000000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				E10000000000000000000010 /* XCLocalSwiftPackageReference "GGWave" */,
 			);
 			productRefGroup = B4E512912F97B5BB00D76599 /* Products */;
