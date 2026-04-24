@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EpiSign — Émetteur Formateur</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px 20px;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+            margin-bottom: 40px;
+        }
+        .totp-display {
+            font-size: 6rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.1em;
+            font-family: 'SF Mono', 'Menlo', monospace;
+            margin: 20px 0;
+            user-select: none;
+        }
+        .timer-bar {
+            width: 300px;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+        .timer-fill {
+            height: 100%;
+            background: #fff;
+            border-radius: 2px;
+            transition: width 1s linear;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+        }
+        .status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .info {
+            margin-top: 40px;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+        }
+        /* Login form */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .login-form input, .login-form select {
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+        }
+        .login-form input::placeholder { color: rgba(255,255,255,0.3); }
+        .login-form button {
+            padding: 14px;
+            border-radius: 999px;
+            border: none;
+            background: #fff;
+            color: #000;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .login-form button:hover { opacity: 0.9; }
+        #error-msg {
+            color: #f87171;
+            font-size: 0.85rem;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="login-screen">
+        <h1>EpiSign Formateur</h1>
+        <p class="subtitle">Entrez le secret TOTP de la session</p>
+        <div class="login-form">
+            <input type="text" id="totp-secret" placeholder="Secret TOTP (base32)" value="JBSWY3DPEHPK3PXP">
+            <input type="text" id="course-name" placeholder="Nom du cours" value="iOS Development">
+            <button onclick="startEmitting()">Démarrer l'émission</button>
+            <p id="error-msg"></p>
+        </div>
+    </div>
+
+    <div class="container" id="emit-screen" style="display:none;">
+        <h1 id="display-course">iOS Development</h1>
+        <p class="subtitle">Code TOTP actuel — fallback saisie manuelle</p>
+        <div class="totp-display" id="totp-code">------</div>
+        <div class="timer-bar">
+            <div class="timer-fill" id="timer-fill"></div>
+        </div>
+        <div class="status">
+            <span class="dot" id="emit-dot"></span>
+            <span id="status-text">Émission ultrason active</span>
+        </div>
+        <p class="info">
+            Signal ultrasonique 17-20 kHz · Renouvellement toutes les 30s<br>
+            Les étudiants peuvent aussi saisir le code manuellement
+        </p>
+    </div>
+
+    <!-- OTPAuth for TOTP generation -->
+    <script src="https://cdn.jsdelivr.net/npm/otpauth@9/dist/otpauth.umd.min.js"></script>
+
+    <script>
+        let ggwaveModule = null;
+        let ggwaveInstance = null;
+        let audioContext = null;
+        let emitInterval = null;
+        let totpSecret = null;
+        let lastCode = '';
+
+        // Load ggwave WASM dynamically from the official repo build
+        async function loadGGWave() {
+            // Try loading from ggerganov's GitHub Pages (the official source)
+            const urls = [
+                'https://ggwave-js.ggerganov.com/ggwave.js',
+                'https://cdn.jsdelivr.net/npm/ggwave@0.4.2/build/ggwave.js',
+            ];
+
+            for (const url of urls) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        const s = document.createElement('script');
+                        s.src = url;
+                        s.onload = resolve;
+                        s.onerror = reject;
+                        document.head.appendChild(s);
+                    });
+                    if (typeof ggwave_factory === 'function') {
+                        console.log('ggwave loaded from:', url);
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('Failed to load ggwave from:', url);
+                }
+            }
+            throw new Error('Could not load ggwave from any source');
+        }
+
+        async function startEmitting() {
+            const secret = document.getElementById('totp-secret').value.trim();
+            const courseName = document.getElementById('course-name').value.trim();
+
+            if (!secret) {
+                document.getElementById('error-msg').textContent = 'Secret TOTP requis';
+                return;
+            }
+
+            totpSecret = secret;
+            document.getElementById('display-course').textContent = courseName;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('emit-screen').style.display = 'block';
+
+            // Initialize audio + ggwave
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                    sampleRate: 48000
+                });
+
+                // Load and init ggwave
+                await loadGGWave();
+                ggwaveModule = await ggwave_factory();
+                const params = ggwaveModule.getDefaultParameters();
+                params.sampleRateInp = audioContext.sampleRate;
+                params.sampleRateOut = audioContext.sampleRate;
+                ggwaveInstance = ggwaveModule.init(params);
+
+                console.log('ggwave initialized, instance:', ggwaveInstance);
+
+                // Start emission loop
+                updateAndEmit();
+                emitInterval = setInterval(updateAndEmit, 3000);
+                setInterval(updateTimerBar, 100);
+            } catch (e) {
+                console.error('ggwave init error:', e);
+                document.getElementById('status-text').textContent =
+                    'Erreur ggwave — code affiché uniquement (saisie manuelle)';
+                document.getElementById('emit-dot').style.background = '#f87171';
+                // Still show TOTP codes
+                updateTOTPDisplay();
+                setInterval(updateTOTPDisplay, 1000);
+                setInterval(updateTimerBar, 100);
+            }
+        }
+
+        function generateTOTP() {
+            const totp = new OTPAuth.TOTP({
+                secret: totpSecret,
+                digits: 6,
+                period: 30,
+                algorithm: 'SHA1',
+            });
+            return totp.generate();
+        }
+
+        function updateTOTPDisplay() {
+            const code = generateTOTP();
+            document.getElementById('totp-code').textContent = code;
+            return code;
+        }
+
+        function updateAndEmit() {
+            const code = updateTOTPDisplay();
+
+            if (!ggwaveModule || !ggwaveInstance || !audioContext) return;
+
+            try {
+                // Protocol IDs for ultrasound:
+                //   8 = GGWAVE_PROTOCOL_ULTRASOUND_NORMAL
+                //   9 = GGWAVE_PROTOCOL_ULTRASOUND_FAST
+                //  10 = GGWAVE_PROTOCOL_ULTRASOUND_FASTEST
+                //  11 = GGWAVE_PROTOCOL_DT_ULTRASOUND_NORMAL (if available)
+                const protocolId = 8; // ultrasound normal — most reliable
+                const volume = 25;
+
+                const waveform = ggwaveModule.encode(
+                    ggwaveInstance,
+                    code,
+                    protocolId,
+                    volume
+                );
+
+                if (waveform && waveform.length > 0) {
+                    playWaveform(waveform);
+                    console.log('Emitted TOTP:', code, '| samples:', waveform.length);
+                } else {
+                    console.warn('ggwave encode returned empty waveform');
+                }
+            } catch (e) {
+                console.error('Encode/play error:', e);
+            }
+        }
+
+        function playWaveform(waveform) {
+            const buffer = audioContext.createBuffer(1, waveform.length, audioContext.sampleRate);
+            const channelData = buffer.getChannelData(0);
+
+            for (let i = 0; i < waveform.length; i++) {
+                channelData[i] = waveform[i];
+            }
+
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioContext.destination);
+            source.start();
+        }
+
+        function updateTimerBar() {
+            const now = Date.now() / 1000;
+            const elapsed = now % 30;
+            const pct = ((30 - elapsed) / 30) * 100;
+            document.getElementById('timer-fill').style.width = pct + '%';
+
+            // Refresh TOTP display every second
+            const code = generateTOTP();
+            if (document.getElementById('totp-code').textContent !== code) {
+                document.getElementById('totp-code').textContent = code;
+                lastCode = '';
+            }
+        }
+    </script>
+</body>
+</html>
