@@ -35,6 +35,11 @@ final class Course {
         !signatures.isEmpty
     }
 
+    var isCurrent: Bool {
+        let now = Date()
+        return startsAt <= now && now <= endsAt
+    }
+
     var formattedDate: String {
         let fmt = DateFormatter()
         fmt.dateFormat = "dd/MM/yyyy"

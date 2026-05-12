@@ -46,12 +46,14 @@ struct EpiSignApp: App {
 
     private func seedIfNeeded() {
         let context = sharedModelContainer.mainContext
-        MockData.seed(context: context)
-
-        // Sync from Supabase in background
         Task {
-            let service = CourseService()
-            try? await service.syncToLocal(context: context)
+            do {
+                let service = CourseService()
+                try await service.syncToLocal(context: context)
+                print("[Sync] courses synced OK")
+            } catch {
+                print("[Sync] FAILED: \(error)")
+            }
         }
 
         // Ensure student profile exists

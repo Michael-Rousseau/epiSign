@@ -60,7 +60,7 @@ serve(async (req: Request) => {
     // 3. Load course and teacher secret
     const { data: course, error: courseError } = await supabaseUser
       .from("courses")
-      .select("*, teachers(totp_secret)")
+      .select("*")
       .eq("id", session_id)
       .single();
 
@@ -78,7 +78,7 @@ serve(async (req: Request) => {
     }
 
     // 5. Validate TOTP
-    const secret = course.teachers?.totp_secret;
+    const secret = course.totp_secret;
     if (!secret) {
       return error("no_totp_secret", 500);
     }

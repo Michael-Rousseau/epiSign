@@ -3,9 +3,11 @@ import SwiftData
 
 struct MockData {
     static func seed(context: ModelContext) {
+        // Always clear and re-seed with current week's courses
         let descriptor = FetchDescriptor<Course>()
-        let existing = (try? context.fetchCount(descriptor)) ?? 0
-        guard existing == 0 else { return }
+        if let existing = try? context.fetch(descriptor) {
+            for course in existing { context.delete(course) }
+        }
 
         let cal = Calendar.current
 
@@ -17,13 +19,18 @@ struct MockData {
             cal.date(from: DateComponents(year: year, month: month, day: day, hour: hour, minute: minute))!
         }
 
+        // Mon 12 → Fri 16 May 2026
         let courses: [(String, String, String, Int, Int, Int, Slot, Int, Int, Int, Int)] = [
-            ("iOS Development",   "M. Fournier", "SM Apple", 2026, 4, 27, .morning,   9, 0, 13, 0),
-            ("iOS Development",   "M. Fournier", "SM Apple", 2026, 4, 27, .afternoon, 14, 0, 18, 0),
-            ("Swift Avancé",      "M. Fournier", "SM Apple", 2026, 4, 28, .morning,   9, 0, 13, 0),
-            ("Swift Avancé",      "M. Fournier", "SM Apple", 2026, 4, 28, .afternoon, 14, 0, 18, 0),
-            ("Projet EpiSign",    "M. Fournier", "SM Apple", 2026, 4, 29, .morning,   9, 0, 13, 0),
-            ("Projet EpiSign",    "M. Fournier", "SM Apple", 2026, 4, 29, .afternoon, 14, 0, 18, 0),
+            ("iOS Development",   "M. Fournier", "SM Apple", 2026, 5, 12, .morning,   9, 0, 13, 0),
+            ("iOS Development",   "M. Fournier", "SM Apple", 2026, 5, 12, .afternoon, 14, 0, 18, 0),
+            ("Swift Avancé",      "M. Fournier", "SM Apple", 2026, 5, 13, .morning,   9, 0, 13, 0),
+            ("Swift Avancé",      "M. Fournier", "SM Apple", 2026, 5, 13, .afternoon, 14, 0, 18, 0),
+            ("Projet EpiSign",    "M. Fournier", "SM Apple", 2026, 5, 14, .morning,   9, 0, 13, 0),
+            ("Projet EpiSign",    "M. Fournier", "SM Apple", 2026, 5, 14, .afternoon, 14, 0, 18, 0),
+            ("iOS Development",   "M. Fournier", "SM Apple", 2026, 5, 15, .morning,   9, 0, 13, 0),
+            ("iOS Development",   "M. Fournier", "SM Apple", 2026, 5, 15, .afternoon, 14, 0, 18, 0),
+            ("Soutenance Projet", "M. Fournier", "SM Apple", 2026, 5, 16, .morning,   9, 0, 13, 0),
+            ("Soutenance Projet", "M. Fournier", "SM Apple", 2026, 5, 16, .afternoon, 14, 0, 18, 0),
         ]
 
         for c in courses {

@@ -39,13 +39,26 @@ actor CourseService {
     }()
 
     func fetchCourses() async throws -> [RemoteCourse] {
-        let courses: [RemoteCourse] = try await supabase
-            .from("courses")
-            .select("*, teachers(name)")
-            .order("starts_at")
-            .execute()
-            .value
-        return courses
+        do {
+            let result: [RemoteCourse] = try await supabase
+                .from("courses")
+                .select("*, teachers(name)")
+                .order("starts_at")
+                .execute()
+                .value
+            print("[Sync] fetched \(result.count) courses WITH teacher join")
+            return result
+        } catch {
+            print("[Sync] teacher join failed: \(error), falling back to *")
+            let result: [RemoteCourse] = try await supabase
+                .from("courses")
+                .select("*")
+                .order("starts_at")
+                .execute()
+                .value
+            print("[Sync] fetched \(result.count) courses WITHOUT teacher join")
+            return result
+        }
     }
 
     func fetchSignatures(studentId: String) async throws -> [RemoteSignature] {
@@ -71,6 +84,7 @@ actor CourseService {
         try context.delete(model: Course.self)
 
         for rc in remoteCourses {
+            print("[Sync] course '\(rc.title)' teacher: \(String(describing: rc.teachers))")
             let course = Course(
                 id: UUID(uuidString: rc.id) ?? UUID(),
                 title: rc.title,
@@ -98,7 +112,6 @@ actor CourseService {
                 }
             }
         }
-
         try context.save()
     }
 }
