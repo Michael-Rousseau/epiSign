@@ -139,8 +139,8 @@ final class AudioManager {
 
     // MARK: - Spectrum
 
-    var spectrumLowFreq: Float { devMode ? 1000.0 : 17000.0 }
-    var spectrumHighFreq: Float { devMode ? 6000.0 : 21000.0 }
+    var spectrumLowFreq: Float { devMode ? 1000.0 : 21000.0 }
+    var spectrumHighFreq: Float { devMode ? 6000.0 : 24000.0 }
 
     private func computeSpectrum(data: UnsafeMutablePointer<Float>, count: Int, sampleRate: Float) {
         guard let fftSetup, count >= fftSize else { return }

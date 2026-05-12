@@ -95,6 +95,8 @@ int ggwave_ndecode(
 
 void ggwave_rxToggleProtocol(ggwave_ProtocolId protocolId, int state);
 void ggwave_txToggleProtocol(ggwave_ProtocolId protocolId, int state);
+void ggwave_rxProtocolSetFreqStart(ggwave_ProtocolId protocolId, int freqStart);
+void ggwave_txProtocolSetFreqStart(ggwave_ProtocolId protocolId, int freqStart);
 
 #ifdef __cplusplus
 }

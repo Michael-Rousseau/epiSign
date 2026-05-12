@@ -247,6 +247,14 @@ export async function startEmit(state: AppState): Promise<void> {
             throw new Error('ggwave.init() failed');
         }
 
+        // Shift ultrasound to ~22 kHz so it's inaudible
+        const mod = ggwaveModule as any;
+        if (!isDevMode && mod.txProtocolSetFreqStart && mod.ProtocolId) {
+            const bin22k = 470; // 22000 Hz / (48000/1024) ≈ 470
+            mod.txProtocolSetFreqStart(mod.ProtocolId.GGWAVE_PROTOCOL_ULTRASOUND_NORMAL, bin22k);
+            console.log('TX freq shifted to ~22 kHz (bin 470)');
+        }
+
         console.log('ggwave initialized OK');
 
         updateAndEmit();

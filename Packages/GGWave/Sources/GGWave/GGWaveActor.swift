@@ -17,7 +17,13 @@ public final class GGWaveDecoder: @unchecked Sendable {
         params.operatingMode = Int32(GGWAVE_OPERATING_MODE_RX_AND_TX)
         params.soundMarkerThreshold = markerThreshold
         instance = ggwave_init(params)
-        log.info("init instance=\(self.instance) sr=\(sampleRate) threshold=\(markerThreshold)")
+
+        // Shift ultrasound RX to ~22 kHz (bin 470) to match TX
+        if instance >= 0 {
+            ggwave_rxProtocolSetFreqStart(GGWAVE_PROTOCOL_ULTRASOUND_NORMAL, 470)
+        }
+
+        log.info("init instance=\(self.instance) sr=\(sampleRate) threshold=\(markerThreshold) rxFreq=22kHz")
     }
 
     deinit {
