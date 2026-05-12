@@ -80,19 +80,13 @@ struct SigningView: View {
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.5))
                 } else if audioManager.isListening {
-                    Text("Ready to sign")
+                    Text("Prêt à signer")
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
-                    Text(audioManager.devMode ? "Listening 1-4 kHz (dev)" : "Approach your instructor")
+                    Text(audioManager.devMode ? "Écoute 1-4 kHz (dev)" : "Approchez-vous de l'enseignant")
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.5))
-                    if !audioManager.debugStatus.isEmpty {
-                        Text(audioManager.debugStatus)
-                            .font(.caption2)
-                            .foregroundStyle(.yellow.opacity(0.7))
-                            .padding(.top, 4)
-                    }
                 } else {
                     Text("Microphone requis")
                         .font(.title3)
@@ -129,13 +123,6 @@ struct SigningView: View {
                 }
                 .padding(.bottom, 12)
 
-                if let error = signingError {
-                    Text(error)
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                        .padding(.bottom, 8)
-                }
-
                 // Sign button
                 Button {
                     showSignatureSheet = true
@@ -147,7 +134,7 @@ struct SigningView: View {
                             .padding(.vertical, 16)
                             .background(Capsule().fill(Color.white.opacity(0.5)))
                     } else {
-                        Text("Sign")
+                        Text("Signer")
                             .font(.headline)
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity)

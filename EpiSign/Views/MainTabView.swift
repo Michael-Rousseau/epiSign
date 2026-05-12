@@ -2,8 +2,8 @@ import SwiftUI
 import SwiftData
 
 enum Tab: String, CaseIterable {
-    case sign = "Sign"
-    case timetable = "Timetable"
+    case sign = "Signer"
+    case timetable = "Emploi du temps"
 }
 
 struct MainTabView: View {

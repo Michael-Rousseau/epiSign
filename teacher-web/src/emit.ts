@@ -212,7 +212,12 @@ export async function startEmit(state: AppState): Promise<void> {
     const errorEl = document.getElementById('emit-error');
 
     try {
-        const keyData = await fetchTOTPSecret(course.id);
+        audioContext = new AudioContext({ sampleRate: 48000 });
+
+        const [keyData] = await Promise.all([
+            fetchTOTPSecret(course.id),
+            loadGGWave(),
+        ]);
         totpSecret = keyData.totp_secret;
         isDevMode = false;
 
@@ -220,7 +225,6 @@ export async function startEmit(state: AppState): Promise<void> {
         if (contentEl) contentEl.style.display = 'block';
 
         const courseTitle = document.getElementById('display-course');
-
         if (courseTitle) courseTitle.textContent = course.title;
 
         const badgeContainer = document.getElementById('mode-badge-container');
@@ -233,11 +237,6 @@ export async function startEmit(state: AppState): Promise<void> {
             if (infoText) infoText.innerHTML = 'Signal ultrasonique 17-20 kHz · Renouvellement toutes les 30s<br>Les étudiants peuvent aussi saisir le code manuellement';
         }
 
-        audioContext = new AudioContext({
-            sampleRate: 48000,
-        });
-
-        await loadGGWave();
         ggwaveModule = await window.ggwave_factory();
         const params = (ggwaveModule as any).getDefaultParameters();
         params.sampleRateInp = audioContext.sampleRate;

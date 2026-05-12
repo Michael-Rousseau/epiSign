@@ -96,7 +96,7 @@ final class AudioManager {
             isListening = true
             log.info("engine started")
             Task { @MainActor in
-                self.debugStatus = "Listening (\(Int(sampleRate)) Hz)"
+                self.debugStatus = ""
             }
         } catch {
             log.error("engine failed: \(error)")

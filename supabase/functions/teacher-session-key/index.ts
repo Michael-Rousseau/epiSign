@@ -47,7 +47,7 @@ serve(async (req: Request) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const { data: course, error: courseError } = await supabase
       .from("courses")
-      .select("*, teachers(id, name, totp_secret)")
+      .select("*, teachers(id, name)")
       .eq("id", course_id)
       .single();
 
@@ -68,7 +68,7 @@ serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({
-        totp_secret: course.teachers.totp_secret,
+        totp_secret: course.totp_secret,
         course_title: course.title,
         starts_at: course.starts_at,
         ends_at: course.ends_at,

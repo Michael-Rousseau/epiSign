@@ -45,11 +45,16 @@ serve(async (req: Request) => {
       return error("unauthorized", 401);
     }
 
+    console.log("[sign] request received from user:", user.id, user.email);
+
     // 2. Parse body
     const body: SignRequest = await req.json();
     const { session_id, totp, signature_png_base64, slot, device_id, timestamp, sha256 } = body;
 
+    console.log("[sign] session_id:", session_id, "totp:", totp, "slot:", slot);
+
     if (!session_id || !totp || !signature_png_base64 || !slot || !device_id || !sha256) {
+      console.log("[sign] missing fields");
       return error("missing_fields", 400);
     }
 
@@ -65,8 +70,10 @@ serve(async (req: Request) => {
       .single();
 
     if (courseError || !course) {
+      console.log("[sign] course not found:", courseError);
       return error("course_not_found", 404);
     }
+    console.log("[sign] course:", course.title, "has totp_secret:", !!course.totp_secret);
 
     // 4. Check time window
     const now = new Date();
@@ -91,9 +98,12 @@ serve(async (req: Request) => {
     });
 
     const delta = totpInstance.validate({ token: totp, window: TOTP_WINDOW });
+    console.log("[sign] TOTP validate delta:", delta, "token:", totp, "secret:", secret.substring(0, 4) + "...");
     if (delta === null) {
+      console.log("[sign] TOTP REJECTED");
       return error("invalid_totp", 403);
     }
+    console.log("[sign] TOTP ACCEPTED");
 
     // 6. Check uniqueness (student + course + slot)
     const { data: existing } = await supabaseUser
@@ -157,6 +167,7 @@ serve(async (req: Request) => {
       return error("insert_error", 500);
     }
 
+    console.log("[sign] SUCCESS — signature_id:", signatureId);
     return new Response(JSON.stringify({ ok: true, signature_id: signatureId }), {
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     });

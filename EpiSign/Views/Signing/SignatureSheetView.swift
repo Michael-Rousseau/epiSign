@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import PencilKit
+import Functions
 
 struct SignatureSheetView: View {
     @Environment(\.dismiss) private var dismiss
@@ -33,9 +34,9 @@ struct SignatureSheetView: View {
                     .padding(.horizontal)
 
                 if let error = errorMessage {
-                    Text(error)
-                        .font(.caption)
-                        .foregroundStyle(.red)
+                    Text(friendlyError(error))
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.7))
                         .padding(.top, 8)
                 }
 
@@ -134,8 +135,8 @@ struct SignatureSheetView: View {
                 errorMessage = response.error ?? "Erreur inconnue"
                 onSigned?(errorMessage)
             }
-        } catch {
-            // Offline: save as draft for later retry
+        } catch let error as URLError {
+            // Network error: save as draft for offline retry
             let draft = LocalSignatureDraft(
                 courseId: course.id,
                 slot: course.slot,
@@ -146,7 +147,6 @@ struct SignatureSheetView: View {
             )
             modelContext.insert(draft)
 
-            // Also save local signature for UI
             let signature = Signature(
                 course: course,
                 slot: course.slot,
@@ -157,9 +157,31 @@ struct SignatureSheetView: View {
             try? modelContext.save()
             onSigned?(nil)
             dismiss()
+        } catch let error as FunctionsError {
+            if case .httpError(_, let data) = error,
+               let response = try? JSONDecoder().decode(SignResponse.self, from: data) {
+                errorMessage = friendlyError(response.error ?? "Erreur inconnue")
+            } else {
+                errorMessage = "Erreur: \(error.localizedDescription)"
+            }
+            onSigned?(errorMessage)
+        } catch {
+            errorMessage = "Erreur: \(error.localizedDescription)"
+            onSigned?(errorMessage)
         }
 
         isSubmitting = false
+    }
+
+    private func friendlyError(_ code: String) -> String {
+        switch code {
+        case "invalid_totp": return "Code invalide, veuillez réessayer"
+        case "out_of_window": return "Le cours n'est pas en cours"
+        case "already_signed": return "Vous avez déjà signé"
+        case "device_mismatch": return "Appareil non reconnu"
+        case "no_totp_secret": return "Configuration du cours incomplète"
+        default: return code
+        }
     }
 }
 
@@ -172,6 +194,7 @@ struct SignatureCanvas: UIViewRepresentable {
         canvasView.tool = PKInkingTool(.pen, color: .black, width: 3)
         canvasView.backgroundColor = .white
         canvasView.isOpaque = true
+        canvasView.overrideUserInterfaceStyle = .light
         canvasView.delegate = context.coordinator
         return canvasView
     }
