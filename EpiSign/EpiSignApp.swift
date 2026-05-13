@@ -4,6 +4,7 @@ import SwiftData
 @main
 struct EpiSignApp: App {
     @State private var auth = AuthManager()
+    @State private var isUnlocked = false
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -28,9 +29,13 @@ struct EpiSignApp: App {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color.black)
+                } else if auth.isAuthenticated && !isUnlocked {
+                    LockScreenView {
+                        isUnlocked = true
+                    }
+                    .onAppear { seedIfNeeded() }
                 } else if auth.isAuthenticated {
                     MainTabView()
-                        .onAppear { seedIfNeeded() }
                 } else {
                     LoginView()
                 }

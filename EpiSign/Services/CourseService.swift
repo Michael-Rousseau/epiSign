@@ -3,6 +3,7 @@ import SwiftData
 import Supabase
 import Auth
 import PostgREST
+import WidgetKit
 
 struct RemoteCourse: Decodable {
     let id: String
@@ -113,5 +114,42 @@ actor CourseService {
             }
         }
         try context.save()
+        await updateWidgetData(courses: remoteCourses)
+    }
+
+    @MainActor
+    func updateWidgetData(courses: [RemoteCourse]) {
+        let defaults = UserDefaults(suiteName: "group.com.EpiSign") ?? .standard
+        let now = Date()
+        let iso = ISO8601DateFormatter()
+        let isoFrac: ISO8601DateFormatter = {
+            let f = ISO8601DateFormatter()
+            f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            return f
+        }()
+        func parseDate(_ s: String) -> Date? {
+            iso.date(from: s) ?? isoFrac.date(from: s)
+        }
+        let upcoming = courses
+            .compactMap { rc -> [String: String]? in
+                guard let end = parseDate(rc.ends_at), end > now else { return nil }
+                return [
+                    "title": rc.title,
+                    "room": rc.room,
+                    "teacher": rc.teachers?.name ?? "Enseignant",
+                    "starts_at": rc.starts_at,
+                    "ends_at": rc.ends_at,
+                    "slot": rc.slot
+                ]
+            }
+        print("[Widget] upcoming courses: \(upcoming.count), total: \(courses.count)")
+        if let next = upcoming.first {
+            defaults.set(next, forKey: "nextCourse")
+            print("[Widget] wrote next course: \(next["title"] ?? "?")")
+        } else {
+            defaults.removeObject(forKey: "nextCourse")
+            print("[Widget] no upcoming courses")
+        }
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }

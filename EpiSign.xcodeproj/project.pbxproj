@@ -6,7 +6,22 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B436CC862FB4A2F90084E554 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = E10000000000000000000002 /* Supabase */; };
+		B436CC872FB4A2F90084E554 /* GGWave in Frameworks */ = {isa = PBXBuildFile; productRef = E10000000000000000000011 /* GGWave */; };
+		B436CCCC2FB4A4D80084E554 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B436CCCB2FB4A4D80084E554 /* WidgetKit.framework */; };
+		B436CCCE2FB4A4D80084E554 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B436CCCD2FB4A4D80084E554 /* SwiftUI.framework */; };
+		B436CCD92FB4A4D90084E554 /* EpiSignWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B436CCC92FB4A4D80084E554 /* EpiSignWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		B436CCD72FB4A4D90084E554 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B4E512882F97B5BB00D76599 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B436CCC82FB4A4D80084E554;
+			remoteInfo = EpiSignWidgetExtension;
+		};
 		B4E512A02F97B5BB00D76599 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B4E512882F97B5BB00D76599 /* Project object */;
@@ -23,44 +38,49 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		B436CCDE2FB4A4D90084E554 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B436CCD92FB4A4D90084E554 /* EpiSignWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		B436CCC92FB4A4D80084E554 /* EpiSignWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = EpiSignWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B436CCCB2FB4A4D80084E554 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		B436CCCD2FB4A4D80084E554 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		B436CCE02FB4AB710084E554 /* EpiSignWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EpiSignWidgetExtension.entitlements; sourceTree = "<group>"; };
 		B4E512902F97B5BB00D76599 /* EpiSign.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EpiSign.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4E5129F2F97B5BB00D76599 /* EpiSignTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EpiSignTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4E512A92F97B5BB00D76599 /* EpiSignUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EpiSignUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		E10000000000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/supabase/supabase-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B436CCDA2FB4A4D90084E554 /* Exceptions for "EpiSignWidget" folder in "EpiSignWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B436CCC82FB4A4D80084E554 /* EpiSignWidgetExtension */;
 		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCLocalSwiftPackageReference section */
-		E10000000000000000000010 /* XCLocalSwiftPackageReference "GGWave" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = Packages/GGWave;
-		};
-/* End XCLocalSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		E10000000000000000000002 /* Supabase */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E10000000000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Supabase;
-		};
-		E10000000000000000000011 /* GGWave */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E10000000000000000000010 /* XCLocalSwiftPackageReference "GGWave" */;
-			productName = GGWave;
-		};
-/* End XCSwiftPackageProductDependency section */
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		B436CCCF2FB4A4D80084E554 /* EpiSignWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B436CCDA2FB4A4D90084E554 /* Exceptions for "EpiSignWidget" folder in "EpiSignWidgetExtension" target */,
+			);
+			path = EpiSignWidget;
+			sourceTree = "<group>";
+		};
 		B4E512922F97B5BB00D76599 /* EpiSign */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = EpiSign;
@@ -79,10 +99,21 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		B436CCC62FB4A4D80084E554 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B436CCCE2FB4A4D80084E554 /* SwiftUI.framework in Frameworks */,
+				B436CCCC2FB4A4D80084E554 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B4E5128D2F97B5BB00D76599 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B436CC872FB4A2F90084E554 /* GGWave in Frameworks */,
+				B436CC862FB4A2F90084E554 /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -103,12 +134,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B436CCCA2FB4A4D80084E554 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B436CCCB2FB4A4D80084E554 /* WidgetKit.framework */,
+				B436CCCD2FB4A4D80084E554 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		B4E512872F97B5BB00D76599 = {
 			isa = PBXGroup;
 			children = (
+				B436CCE02FB4AB710084E554 /* EpiSignWidgetExtension.entitlements */,
 				B4E512922F97B5BB00D76599 /* EpiSign */,
 				B4E512A22F97B5BB00D76599 /* EpiSignTests */,
 				B4E512AC2F97B5BB00D76599 /* EpiSignUITests */,
+				B436CCCF2FB4A4D80084E554 /* EpiSignWidget */,
+				B436CCCA2FB4A4D80084E554 /* Frameworks */,
 				B4E512912F97B5BB00D76599 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -119,6 +162,7 @@
 				B4E512902F97B5BB00D76599 /* EpiSign.app */,
 				B4E5129F2F97B5BB00D76599 /* EpiSignTests.xctest */,
 				B4E512A92F97B5BB00D76599 /* EpiSignUITests.xctest */,
+				B436CCC92FB4A4D80084E554 /* EpiSignWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -126,6 +170,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		B436CCC82FB4A4D80084E554 /* EpiSignWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B436CCDB2FB4A4D90084E554 /* Build configuration list for PBXNativeTarget "EpiSignWidgetExtension" */;
+			buildPhases = (
+				B436CCC52FB4A4D80084E554 /* Sources */,
+				B436CCC62FB4A4D80084E554 /* Frameworks */,
+				B436CCC72FB4A4D80084E554 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				B436CCCF2FB4A4D80084E554 /* EpiSignWidget */,
+			);
+			name = EpiSignWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = EpiSignWidgetExtension;
+			productReference = B436CCC92FB4A4D80084E554 /* EpiSignWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		B4E5128F2F97B5BB00D76599 /* EpiSign */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B4E512B32F97B5BB00D76599 /* Build configuration list for PBXNativeTarget "EpiSign" */;
@@ -133,10 +199,12 @@
 				B4E5128C2F97B5BB00D76599 /* Sources */,
 				B4E5128D2F97B5BB00D76599 /* Frameworks */,
 				B4E5128E2F97B5BB00D76599 /* Resources */,
+				B436CCDE2FB4A4D90084E554 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B436CCD82FB4A4D90084E554 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				B4E512922F97B5BB00D76599 /* EpiSign */,
@@ -206,6 +274,9 @@
 				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					B436CCC82FB4A4D80084E554 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
 					B4E5128F2F97B5BB00D76599 = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
@@ -228,11 +299,11 @@
 			);
 			mainGroup = B4E512872F97B5BB00D76599;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			packageReferences = (
 				E10000000000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */,
-				E10000000000000000000010 /* XCLocalSwiftPackageReference "GGWave" */,
+				E10000000000000000000010 /* XCLocalSwiftPackageReference "Packages/GGWave" */,
 			);
+			preferredProjectObjectVersion = 77;
 			productRefGroup = B4E512912F97B5BB00D76599 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -240,11 +311,19 @@
 				B4E5128F2F97B5BB00D76599 /* EpiSign */,
 				B4E5129E2F97B5BB00D76599 /* EpiSignTests */,
 				B4E512A82F97B5BB00D76599 /* EpiSignUITests */,
+				B436CCC82FB4A4D80084E554 /* EpiSignWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		B436CCC72FB4A4D80084E554 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B4E5128E2F97B5BB00D76599 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -269,6 +348,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		B436CCC52FB4A4D80084E554 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B4E5128C2F97B5BB00D76599 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -293,6 +379,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		B436CCD82FB4A4D90084E554 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B436CCC82FB4A4D80084E554 /* EpiSignWidgetExtension */;
+			targetProxy = B436CCD72FB4A4D90084E554 /* PBXContainerItemProxy */;
+		};
 		B4E512A12F97B5BB00D76599 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B4E5128F2F97B5BB00D76599 /* EpiSign */;
@@ -306,6 +397,79 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		B436CCDC2FB4A4D90084E554 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = EpiSignWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = EpiSignWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = EpiSignWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.EpiSign.EpiSignWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = xros;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		B436CCDD2FB4A4D90084E554 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = EpiSignWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = EpiSignWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = EpiSignWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.EpiSign.EpiSignWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = xros;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
 		B4E512B12F97B5BB00D76599 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -425,6 +589,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = EpiSign/EpiSign.entitlements;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
@@ -442,6 +607,9 @@
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "EpiSign utilise Face ID pour sécuriser l'accès à votre compte.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "EpiSign utilise votre position pour vérifier que vous êtes dans la salle de cours lors de la signature.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "EpiSign utilise le micro pour capter le signal ultrasonique inaudible émis par le poste du formateur, afin de valider votre présence en salle.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -450,8 +618,6 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "EpiSign utilise votre position pour vérifier que vous êtes dans la salle de cours lors de la signature.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "EpiSign utilise le micro pour capter le signal ultrasonique inaudible émis par le poste du formateur, afin de valider votre présence en salle.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -480,6 +646,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = EpiSign/EpiSign.entitlements;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
@@ -497,6 +664,9 @@
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "EpiSign utilise Face ID pour sécuriser l'accès à votre compte.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "EpiSign utilise votre position pour vérifier que vous êtes dans la salle de cours lors de la signature.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "EpiSign utilise le micro pour capter le signal ultrasonique inaudible émis par le poste du formateur, afin de valider votre présence en salle.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -505,8 +675,6 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "EpiSign utilise votre position pour vérifier que vous êtes dans la salle de cours lors de la signature.";
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "EpiSign utilise le micro pour capter le signal ultrasonique inaudible émis par le poste du formateur, afin de valider votre présence en salle.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -627,6 +795,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		B436CCDB2FB4A4D90084E554 /* Build configuration list for PBXNativeTarget "EpiSignWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B436CCDC2FB4A4D90084E554 /* Debug */,
+				B436CCDD2FB4A4D90084E554 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		B4E5128B2F97B5BB00D76599 /* Build configuration list for PBXProject "EpiSign" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -664,6 +841,37 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		E10000000000000000000010 /* XCLocalSwiftPackageReference "Packages/GGWave" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/GGWave;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E10000000000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E10000000000000000000002 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E10000000000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		E10000000000000000000011 /* GGWave */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E10000000000000000000010 /* XCLocalSwiftPackageReference "Packages/GGWave" */;
+			productName = GGWave;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B4E512882F97B5BB00D76599 /* Project object */;
 }
