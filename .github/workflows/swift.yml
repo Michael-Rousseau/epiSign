@@ -1,7 +1,4 @@
-# This workflow will build a Swift project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-swift
-
-name: Swift
+name: EpiSign CI
 
 on:
   push:
@@ -10,13 +7,41 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
-    runs-on: macos-latest
+  build-and-test:
+    runs-on: macos-15
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app
+
+      - name: Build GGWave Local Package
+        run: swift build -v
+        working-directory: Packages/GGWave
+
+      - name: List Available Schemes and Simulators
+        run: xcodebuild -list
+
+      - name: Build and Run Tests
+        run: |
+          xcodebuild test \
+            -scheme EpiSign \
+            -project EpiSign.xcodeproj \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.1' \
+            -derivedDataPath Build/ \
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            IPHONEOS_DEPLOYMENT_TARGET=18.0
+        env:
+          NSUnbufferedIO: YES
+
+      - name: Upload Test Results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: Build/Logs/Test/*.xcresult
