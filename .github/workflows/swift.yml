@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Select Xcode Version
         run: sudo xcode-select -s /Applications/Xcode_16.1.app
@@ -29,10 +31,11 @@ jobs:
           xcodebuild test \
             -scheme EpiSign \
             -project EpiSign.xcodeproj \
-            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.1' \
             -derivedDataPath Build/ \
             CODE_SIGNING_ALLOWED=NO \
-            COMPILER_INDEX_STORE_ENABLE=NO
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            IPHONEOS_DEPLOYMENT_TARGET=18.0
         env:
           NSUnbufferedIO: YES
 
