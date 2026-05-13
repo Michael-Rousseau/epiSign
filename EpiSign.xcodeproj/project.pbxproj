@@ -607,6 +607,7 @@
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "EpiSign utilise Face ID pour sécuriser l'accès à votre compte.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "EpiSign utilise votre position pour vérifier que vous êtes dans la salle de cours lors de la signature.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "EpiSign utilise le micro pour capter le signal ultrasonique inaudible émis par le poste du formateur, afin de valider votre présence en salle.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -664,6 +665,7 @@
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "EpiSign utilise Face ID pour sécuriser l'accès à votre compte.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "EpiSign utilise votre position pour vérifier que vous êtes dans la salle de cours lors de la signature.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "EpiSign utilise le micro pour capter le signal ultrasonique inaudible émis par le poste du formateur, afin de valider votre présence en salle.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
