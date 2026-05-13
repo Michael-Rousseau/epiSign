@@ -8,29 +8,37 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: macos-14 
-    
+    runs-on: macos-15
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set Xcode Version
-        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app
 
       - name: Build GGWave Local Package
         run: swift build -v
         working-directory: Packages/GGWave
 
-      - name: Build iOS App
-        run: |
-          xcodebuild build-for-testing \
-            -scheme EpiSign \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5' \
-            -derivedDataPath Build/
+      - name: List Available Schemes and Simulators
+        run: xcodebuild -list
 
-      - name: Run Tests
+      - name: Build and Run Tests
         run: |
-          xcodebuild test-without-building \
+          xcodebuild test \
             -scheme EpiSign \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5' \
-            -derivedDataPath Build/
+            -project EpiSign.xcodeproj \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.1' \
+            -derivedDataPath Build/ \
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO
+        env:
+          NSUnbufferedIO: YES
+
+      - name: Upload Test Results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: Build/Logs/Test/*.xcresult
